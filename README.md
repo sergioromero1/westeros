@@ -5,7 +5,8 @@ Mapa interactivo de Poniente (Westeros) con las casas nobles y sus castillos, he
 ## Funciones
 
 - Zoom con la rueda, doble clic, botones o pellizco; arrastrar para moverse.
-- Clic en un castillo para ver su casa, lema, blasón y descripción.
+- Clic en un castillo para ver su casa, escudo, lema, personajes y lo que pasó allí.
+- Nombres del mapa en inglés (con el nombre en español en el panel).
 - Búsqueda por nombre en español o en inglés (`Invernalia` o `Winterfell`).
 - Filtros por región y por casa.
 - Enlaces directos a un castillo: `index.html#Winterfell`.
@@ -15,6 +16,8 @@ Mapa interactivo de Poniente (Westeros) con las casas nobles y sus castillos, he
 - `index.html` – página principal.
 - `css/styles.css` – estilos.
 - `js/data.js` – regiones, casas y castillos (para añadir lugares, edita este archivo).
+- `js/lore.js` – personajes y acontecimientos de cada lugar.
+- `img/sigils.webp` – escudos de las casas (sprite de 8 columnas).
 - `js/geo.js` – geografía del mapa (costa, islas, ríos, montañas, fronteras).
 - `js/map.js` – dibujo del mapa e interacción.
 
@@ -29,5 +32,7 @@ python -m http.server 8080
 ## Publicación
 
 Se publica con GitHub Pages desde la rama `main` (carpeta raíz).
+
+Los escudos provienen de [A Wiki of Ice and Fire](https://awoiaf.westeros.org/index.php/Category:SVG_coats_of_arms) y se distribuyen bajo la licencia [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); aquí se rasterizaron y combinaron en `img/sigils.webp`.
 
 Proyecto de fans sin fines comerciales. *Canción de Hielo y Fuego* es obra de George R. R. Martin.

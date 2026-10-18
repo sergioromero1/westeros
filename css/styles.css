@@ -373,3 +373,23 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Con mucho zoom los rótulos de región pasan a segundo plano */
 #map.zoomed-in .region-label { opacity: 0.18; }
 #map.zoomed-in .region-label.active { opacity: 0.35; }
+
+/* Escudos reales (sprite) */
+.sigil-img { flex: none; background-repeat: no-repeat; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
+.shield-pin { filter: drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, 0.55)); transform-box: fill-box; transform-origin: center; transition: transform 0.15s; }
+.marker:hover .shield-pin, .marker:focus-visible .shield-pin { transform: scale(1.25); }
+.marker.selected .shield-pin { transform: scale(1.4); filter: drop-shadow(0 0 3px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)); }
+.type-ruin .shield-pin { opacity: 0.75; filter: grayscale(0.7) drop-shadow(0 1.5px 1.5px rgba(0, 0, 0, 0.55)); }
+
+/* Personajes y acontecimientos */
+.lore h4 { font-family: "Cinzel", serif; font-size: 0.85rem; margin: 14px 0 6px; color: var(--accent); }
+.lore ul { margin: 0; padding-left: 18px; line-height: 1.35; }
+.lore li { margin-bottom: 5px; }
+.people { display: flex; flex-wrap: wrap; gap: 5px; }
+.people span { background: var(--panel-2); border-radius: 999px; padding: 1px 9px; font-size: 0.9rem; }
+.info .house-box { margin-top: 14px; }
+.house-box .motto-es { margin: 0; font-size: 0.85rem; color: var(--ink-soft); font-style: italic; }
+.info-head .sigil-img { flex: none; }
+.lg-shield { width: 18px; height: 20px; border: 0; background: url(../img/sigils.webp) 0 0 / 144px 132px no-repeat; }
+.lg-shield.big { width: 24px; height: 26px; background-size: 192px 176px; }
+.lg-shield.faded { opacity: 0.6; filter: grayscale(0.7); }

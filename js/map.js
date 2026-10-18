@@ -155,7 +155,7 @@
   // Rótulos de regiones y mares
   GEO.regionLabels.forEach((r) => {
     const t = el("text", { x: r.x, y: r.y, class: "region-label", "font-size": r.size, "data-region": r.region }, layers.labels);
-    t.textContent = REGIONS[r.region].name.toUpperCase();
+    t.textContent = REGIONS[r.region].en.toUpperCase();
   });
   GEO.seaLabels.forEach((s) => {
     const attrs = { x: s.x, y: s.y, class: "sea-label", "font-size": s.size };
@@ -163,7 +163,7 @@
     el("text", attrs, layers.labels).textContent = s.name;
   });
   const wallLabel = el("text", { x: 400, y: 322, class: "wall-label", "font-size": 9 }, layers.labels);
-  wallLabel.textContent = "EL MURO";
+  wallLabel.textContent = "THE WALL";
 
   // ---------- Marcadores de castillos ----------
   const TYPE_LABEL = {
@@ -174,11 +174,36 @@
     watch: "Castillo de la Guardia de la Noche",
   };
 
+  // Un clipPath por tamaño de escudo para recortar cada blasón del sprite
+  const defs = svg.querySelector("defs");
+  const clips = {};
+  function shieldClip(w, h) {
+    const id = "clip-" + Math.round(w * 10);
+    if (!clips[id]) {
+      const cp = el("clipPath", { id }, defs);
+      el("rect", { x: -w / 2, y: -h / 2, width: w, height: h }, cp);
+      clips[id] = true;
+    }
+    return id;
+  }
+
   const markers = CASTLES.map((c, idx) => {
     const house = HOUSES[c.house];
-    const g = el("g", { class: `marker type-${c.type}`, "data-idx": idx, tabindex: 0, role: "button", "aria-label": c.name }, layers.markers);
+    const g = el("g", { class: `marker type-${c.type}`, "data-idx": idx, tabindex: 0, role: "button", "aria-label": c.en }, layers.markers);
     const inner = el("g", { class: "marker-inner" }, g);
     const r = c.type === "capital" ? 13 : 9.5;
+    if (house.sprite !== undefined) {
+      // Escudo real recortado del sprite
+      const w = r * 2.1;
+      const hh = w * (SIGIL_SPRITE.cellH / SIGIL_SPRITE.cellW);
+      const col = house.sprite % SIGIL_SPRITE.cols;
+      const row = Math.floor(house.sprite / SIGIL_SPRITE.cols);
+      const box = el("g", { class: "pin shield-pin", "clip-path": `url(#${shieldClip(w, hh)})` }, inner);
+      el("image", { href: SIGIL_SPRITE.url, x: -w / 2 - col * w, y: -hh / 2 - row * hh, width: SIGIL_SPRITE.cols * w, height: SIGIL_SPRITE.rows * hh, preserveAspectRatio: "none" }, box);
+      const label = el("text", { class: "marker-label", x: w / 2 + 4, y: 4 }, inner);
+      label.textContent = c.en;
+      return { c, g, inner, label };
+    }
     if (c.type === "city") {
       el("rect", { x: -r, y: -r, width: r * 2, height: r * 2, rx: 3, fill: house.colors[0], stroke: house.colors[1], class: "pin" }, inner);
     } else if (c.type === "watch") {
@@ -189,7 +214,7 @@
     const sig = el("text", { class: "sigil", "font-size": c.type === "capital" ? 14 : 10, y: 0.5 }, inner);
     sig.textContent = house.sigil;
     const label = el("text", { class: "marker-label", x: r + 5, y: 4 }, inner);
-    label.textContent = c.name;
+    label.textContent = c.en;
     return { c, g, inner, label };
   });
 
@@ -391,7 +416,7 @@
     if (!m) return hideTooltip();
     const c = CASTLES[+m.dataset.idx];
     const h = HOUSES[c.house];
-    tooltip.innerHTML = `<strong>${c.name}</strong><span>${h.name}</span>`;
+    tooltip.innerHTML = `<strong>${c.en}</strong><span>${h.name}</span>`;
     const r = stage.getBoundingClientRect();
     tooltip.style.left = e.clientX - r.left + 14 + "px";
     tooltip.style.top = e.clientY - r.top + 14 + "px";
@@ -407,8 +432,23 @@
   let selected = -1;
 
   function shield(h, size = 56) {
-    return `<div class="shield" style="--c0:${h.colors[0]};--c1:${h.colors[1]};width:${size}px;height:${size * 1.15}px"><span>${h.sigil}</span></div>`;
+    const height = Math.round(size * (SIGIL_SPRITE.cellH / SIGIL_SPRITE.cellW));
+    if (h.sprite !== undefined) {
+      const col = h.sprite % SIGIL_SPRITE.cols;
+      const row = Math.floor(h.sprite / SIGIL_SPRITE.cols);
+      const style = [
+        `width:${size}px`,
+        `height:${height}px`,
+        `background-image:url(${SIGIL_SPRITE.url})`,
+        `background-size:${size * SIGIL_SPRITE.cols}px ${height * SIGIL_SPRITE.rows}px`,
+        `background-position:${-col * size}px ${-row * height}px`,
+      ].join(";");
+      return `<div class="sigil-img" role="img" aria-label="Escudo de ${h.name}" style="${style}"></div>`;
+    }
+    return `<div class="shield" style="--c0:${h.colors[0]};--c1:${h.colors[1]};width:${size}px;height:${height}px"><span>${h.sigil}</span></div>`;
   }
+
+  const list = (items) => `<ul>${items.map((t) => `<li>${t}</li>`).join("")}</ul>`;
 
   function select(idx, fly) {
     selected = idx;
@@ -420,27 +460,30 @@
     }
     const c = CASTLES[idx];
     const h = HOUSES[c.house];
+    const lore = LORE[c.en];
     const others = CASTLES.map((o, i) => ({ o, i })).filter(({ o, i }) => o.house === c.house && i !== idx);
     info.innerHTML = `
       <button class="close" aria-label="Cerrar">×</button>
       <div class="info-head">
         ${shield(h)}
         <div>
-          <h2>${c.name}</h2>
-          ${c.en !== c.name ? `<p class="en">${c.en}</p>` : ""}
-          <p class="type">${TYPE_LABEL[c.type]} · ${REGIONS[c.region].name}</p>
+          <h2>${c.en}</h2>
+          ${c.en !== c.name ? `<p class="en">${c.name}</p>` : ""}
+          <p class="type">${TYPE_LABEL[c.type]} · ${REGIONS[c.region].en}</p>
         </div>
       </div>
       <p class="desc">${c.desc}</p>
+      ${lore && lore.people ? `<div class="lore"><h4>Personajes</h4><div class="people">${lore.people.map((p) => `<span>${p}</span>`).join("")}</div></div>` : ""}
+      ${lore && lore.events ? `<div class="lore"><h4>Lo que pasó aquí</h4>${list(lore.events)}</div>` : ""}
       <div class="house-box">
         <h3>${h.name}</h3>
-        ${h.motto ? `<p class="motto">«${h.motto}»</p>` : ""}
+        ${h.mottoEn ? `<p class="motto">«${h.mottoEn}»</p><p class="motto-es">${h.motto}</p>` : h.motto ? `<p class="motto">«${h.motto}»</p>` : ""}
         <p class="blazon">${h.sigilText}</p>
       </div>
       ${
         others.length
           ? `<div class="others"><h4>Otros lugares de la casa</h4>${others
-              .map(({ o, i }) => `<button class="link" data-idx="${i}">${o.name}</button>`)
+              .map(({ o, i }) => `<button class="link" data-idx="${i}">${o.en}</button>`)
               .join("")}</div>`
           : ""
       }`;
@@ -513,7 +556,7 @@
     regionChips.appendChild(b);
   }
   chip("Todas", "");
-  Object.entries(REGIONS).forEach(([k, r]) => chip(r.name, k));
+  Object.entries(REGIONS).forEach(([k, r]) => chip(r.en, k));
 
   function renderHouses() {
     houseList.innerHTML = "";
@@ -562,7 +605,7 @@
     }
     hits.forEach(({ c, i }) => {
       const li = document.createElement("li");
-      li.innerHTML = `<button><strong>${c.name}</strong><small>${HOUSES[c.house].name} · ${REGIONS[c.region].name}</small></button>`;
+      li.innerHTML = `<button><strong>${c.en}</strong><small>${c.en !== c.name ? c.name + " · " : ""}${HOUSES[c.house].name}</small></button>`;
       li.querySelector("button").addEventListener("click", () => {
         select(i, true);
         search.value = "";

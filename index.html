@@ -20,7 +20,7 @@
 
   <aside class="sidebar">
     <div class="search-box">
-      <input id="search" type="search" placeholder="Buscar castillo o casa…" autocomplete="off" aria-label="Buscar castillo o casa">
+      <input id="search" type="search" placeholder="Buscar castillo o casa (ES / EN)…" autocomplete="off" aria-label="Buscar castillo o casa">
       <ul id="results" class="results"></ul>
     </div>
 
@@ -37,16 +37,16 @@
     <section class="legend">
       <h3>Leyenda</h3>
       <ul>
-        <li><span class="lg lg-capital"></span>Sede de una gran casa</li>
-        <li><span class="lg lg-castle"></span>Castillo</li>
-        <li><span class="lg lg-city"></span>Ciudad</li>
+        <li><span class="lg lg-shield big"></span>Sede de una gran casa</li>
+        <li><span class="lg lg-shield"></span>Castillo o ciudad</li>
+        <li><span class="lg lg-shield faded"></span>Ruinas / lugar histórico</li>
         <li><span class="lg lg-watch"></span>Guardia de la Noche</li>
-        <li><span class="lg lg-ruin"></span>Ruinas / lugar histórico</li>
+        <li><span class="lg lg-ruin"></span>Pueblo Libre</li>
       </ul>
       <label class="toggle"><input id="toggleLabels" type="checkbox"> Mostrar todos los nombres</label>
     </section>
 
-    <p class="credits">Mapa dibujado a mano con SVG. Ubicaciones aproximadas, basadas en la obra de George R. R. Martin. Proyecto de fans sin fines comerciales.</p>
+    <p class="credits">Mapa dibujado a mano con SVG. Ubicaciones aproximadas, basadas en la obra de George R. R. Martin. Escudos: <a href="https://awoiaf.westeros.org/index.php/Category:SVG_coats_of_arms" target="_blank" rel="noopener">A Wiki of Ice and Fire</a>, licencia <a href="https://creativecommons.org/licenses/by-sa/3.0/" target="_blank" rel="noopener">CC BY-SA 3.0</a> (rasterizados en un sprite). Proyecto de fans sin fines comerciales.</p>
   </aside>
 
   <main id="stage" class="stage">
@@ -76,6 +76,7 @@
   </main>
 
   <script src="js/data.js"></script>
+  <script src="js/lore.js"></script>
   <script src="js/geo.js"></script>
   <script src="js/map.js"></script>
 </body>
