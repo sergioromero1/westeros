@@ -2,8 +2,8 @@
   "use strict";
 
   const SVG_NS = "http://www.w3.org/2000/svg";
-  const MAP_W = 1000;
-  const MAP_H = 1800;
+  const MAP_W = GEO_DATA.W;
+  const MAP_H = GEO_DATA.H;
 
   const svg = document.getElementById("map");
   const stage = document.getElementById("stage");
@@ -67,35 +67,93 @@
     return d;
   }
 
-  function inside(pt, poly) {
-    let c = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i];
-      const [xj, yj] = poly[j];
-      if (yi > pt[1] !== yj > pt[1] && pt[0] < ((xj - xi) * (pt[1] - yi)) / (yj - yi) + xi) c = !c;
-    }
-    return c;
-  }
-
   // ---------- Construcción del mapa ----------
   const layers = {};
   ["sea", "land", "terrain", "water", "borders", "labels", "markers"].forEach((n) => {
     layers[n] = el("g", { class: "layer-" + n }, svg);
   });
+  const defs = svg.querySelector("defs");
+
+  function gradient(id, stops, y1, y2) {
+    const g = el("linearGradient", { id, gradientUnits: "userSpaceOnUse", x1: 0, x2: 0, y1, y2 }, defs);
+    stops.forEach(([o, c]) => el("stop", { offset: o, "stop-color": c }, g));
+    return `url(#${id})`;
+  }
 
   // Mar
   el("rect", { x: -2000, y: -2000, width: MAP_W + 4000, height: MAP_H + 4000, fill: "url(#seaPattern)" }, layers.sea);
 
-  // Tierra firme e islas
-  const mainland = roughen(GEO.mainland, { iters: 5, rough: 0.32, seed: 7 });
-  const islands = GEO.islands.map((isl, i) => roughen(isl.pts, { iters: 4, rough: 0.3, seed: 100 + i }));
-  const landPolys = [mainland, ...islands];
+  // Tierra: un polígono por región (la costa y las fronteras vienen de geo-data.js)
+  const landPolys = GEO_DATA.land.map((l) => l.pts);
+  const essosD = GEO_DATA.essos.map((p) => toPath(p)).join(" ");
   const landD = landPolys.map((p) => toPath(p)).join(" ");
+  const wallY = Math.max(...GEO_DATA.wall.map((p) => p[1]));
 
-  el("path", { d: landD, class: "coast-glow" }, layers.land);
-  el("path", { d: landD, class: "coast-glow2" }, layers.land);
-  el("path", { d: landD, class: "land" }, layers.land);
-  el("path", { d: landD, class: "land-texture" }, layers.land);
+  // Hielo marino en los mares del norte (debajo de los anillos de costa)
+  (function seaIce() {
+    const rand = rng(77);
+    const g = el("g", { class: "sea-ice" }, layers.sea);
+    for (let i = 0; i < 140; i++) {
+      const cx = rand() * MAP_W;
+      const cy = Math.pow(rand(), 1.6) * wallY * 1.05;
+      const r = 3 + rand() * 9 * (1 - cy / (wallY * 1.1));
+      const n = 6;
+      const pts = [];
+      for (let k = 0; k < n; k++) {
+        const a = (k / n) * Math.PI * 2 + rand() * 0.6;
+        const rr = r * (0.6 + rand() * 0.5);
+        pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr * 0.75]);
+      }
+      el("path", { d: toPath(pts) }, g);
+    }
+  })();
+
+  el("path", { d: landD + essosD, class: "coast-glow" }, layers.land);
+  el("path", { d: landD + essosD, class: "coast-glow2" }, layers.land);
+  el("path", { d: essosD, class: "land essos" }, layers.land);
+
+  // Biomas: cada región con su color (solo Dorne es desierto)
+  const BIOME = {
+    beyond: gradient("g-beyond", [[0, "#f8fbfc"], [0.45, "#eef3f4"], [0.8, "#d9e0d6"], [1, "#c7cfb6"]], 0, wallY),
+    north: gradient("g-north", [[0, "#d3d8c4"], [0.5, "#c3c9a5"], [1, "#b9c294"]], wallY, wallY + 560),
+    iron: "#b9b5a6",
+    west: "#d3c690",
+    river: "#c3cf92",
+    vale: "#c2caa0",
+    crown: "#cbcf96",
+    reach: "#b8cd85",
+    storm: "#afbf8c",
+    dorne: gradient("g-dorne", [[0, "#d9c690"], [0.35, "#e6c98a"], [1, "#ecc77f"]], 1380, 1620),
+  };
+  Object.keys(BIOME).forEach((region) => {
+    const d = GEO_DATA.land.filter((l) => l.region === region).map((l) => toPath(l.pts)).join(" ");
+    el("path", { d, style: `fill:${BIOME[region]}`, class: "land biome" }, layers.land);
+  });
+  el("path", { d: landD + essosD, class: "land-texture" }, layers.land);
+
+  // Grietas en el hielo de las Tierras del Eterno Invierno
+  (function iceCracks() {
+    const rand = rng(91);
+    const g = el("g", { class: "ice-cracks" }, layers.land);
+    for (let i = 0; i < 40; i++) {
+      let x = 120 + rand() * 700;
+      let y = rand() * wallY * 0.45;
+      const pts = [[x, y]];
+      for (let k = 0; k < 4; k++) {
+        x += (rand() - 0.5) * 30;
+        y += (rand() - 0.3) * 14;
+        pts.push([x, y]);
+      }
+      el("path", { d: toPath(pts, false) }, g);
+    }
+  })();
+
+  // Niebla de tierras inexploradas en el borde norte (el mapa corta el continente en y = 0)
+  el("rect", { x: -2000, y: -400, width: MAP_W + 4000, height: 480, fill: gradient("g-fog", [[0, "#f2f6f7"], [0.8, "#f2f6f7"], [1, "rgba(242,246,247,0)"]], -400, 80), class: "fog" }, layers.labels);
+
+  // Línea de costa (solo los tramos que tocan el mar, no las fronteras internas)
+  el("path", { d: GEO_DATA.coast.map((c) => toPath(c, false)).join(" "), class: "coastline" }, layers.land);
+  el("path", { d: essosD, class: "coastline essos-coast" }, layers.land);
   (function paperTexture() {
     const size = 256;
     const cv = document.createElement("canvas");
@@ -118,11 +176,31 @@
       }
     }
     ctx.putImageData(img, 0, 0);
-    const pat = el("pattern", { id: "paperPattern", width: 128, height: 128, patternUnits: "userSpaceOnUse" }, svg.querySelector("defs"));
+    const pat = el("pattern", { id: "paperPattern", width: 128, height: 128, patternUnits: "userSpaceOnUse" }, defs);
     el("image", { href: cv.toDataURL(), width: 128, height: 128 }, pat);
   })();
 
-  const onLand = (p) => landPolys.some((poly) => inside(p, poly));
+  // ¿Está un punto sobre tierra firme? Se pinta una máscara de la tierra (sin lagos) una sola vez
+  // en un canvas y luego cada consulta es una lectura de píxel.
+  const onDryLand = (() => {
+    const k = 0.5; // resolución: 2 unidades del mapa por píxel
+    const w = Math.ceil(MAP_W * k);
+    const h = Math.ceil(MAP_H * k);
+    const cv = document.createElement("canvas");
+    cv.width = w;
+    cv.height = h;
+    const ctx = cv.getContext("2d");
+    ctx.scale(k, k);
+    ctx.fill(new Path2D(landD));
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fill(new Path2D(GEO_DATA.lakes.map((l) => toPath(l.pts)).join(" ")));
+    const alpha = ctx.getImageData(0, 0, w, h).data;
+    return (p) => {
+      const x = Math.floor(p[0] * k);
+      const y = Math.floor(p[1] * k);
+      return x >= 0 && y >= 0 && x < w && y < h && alpha[(y * w + x) * 4 + 3] > 128;
+    };
+  })();
 
   // Bosques y montañas (generados con semilla, solo sobre tierra)
   function scatter(area, seed, minDist) {
@@ -133,7 +211,7 @@
     while (out.length < area.n && tries < area.n * 30) {
       tries++;
       const p = [x + rand() * w, y + rand() * h];
-      if (!onLand(p)) continue;
+      if (!onDryLand(p)) continue;
       if (out.some((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) < minDist)) continue;
       out.push(p);
     }
@@ -159,21 +237,47 @@
     });
   });
 
-  // Ríos y lagos
-  GEO.rivers.forEach((r, i) => {
-    const pts = roughen(r.pts, { closed: false, iters: 2, rough: 0.25, seed: 700 + i });
-    el("path", { d: smoothPath(pts), class: "river" }, layers.water);
-  });
-  GEO.lakes.forEach((l) => {
-    el("ellipse", { cx: l.cx, cy: l.cy, rx: l.rx, ry: l.ry, class: "lake" }, layers.water);
+  // Ríos: cada uno se dibuja en tramos cada vez más anchos hacia la desembocadura
+  const RIVER_NAMES = {
+    milkwater: "Milkwater", "white-knife": "White Knife", "green-fork": "Green Fork", "blue-fork": "Blue Fork",
+    "red-fork": "Red Fork", "blackwater-rush": "Blackwater Rush", "mander-main": "Mander", greenblood: "Greenblood",
+    "last-river": "Last River", "weeping-water": "Weeping Water", tumblestone: "Tumblestone", wendwater: "Wendwater",
+    torentine: "Torrentine", honeywine: "Honeywine", scourge: "Scourge", vaith: "Vaith", brimstone: "Brimstone",
+    slayne: "Slayne", "broken-branch": "Broken Branch", "antler-river": "Antler", "ice-river": "Ice River",
+    "fever-river": "Fever River", cockleswhent: "Cockleswhent", blueburn: "Blueburn", wyl: "Wyl",
+  };
+  const riverGroup = el("g", { class: "rivers" }, layers.water);
+  const riverLabels = el("g", { class: "river-labels" }, layers.labels);
+  const labelled = new Set();
+  GEO_DATA.rivers.forEach((r, i) => {
+    const pts = r.pts;
+    const full = r.major ? 2.4 : 1.4;
+    const parts = 3;
+    const n = pts.length - 1;
+    for (let k = 0; k < parts; k++) {
+      const seg = pts.slice(Math.floor((k * n) / parts), Math.floor(((k + 1) * n) / parts) + 1);
+      if (seg.length < 2) continue;
+      el("path", { d: toPath(seg, false), class: "river", "stroke-width": (full * (0.45 + (0.55 * (k + 1)) / parts)).toFixed(2) }, riverGroup);
+    }
+    const name = RIVER_NAMES[r.id];
+    if (name && !labelled.has(name) && pts.length > 6) {
+      labelled.add(name);
+      // El texto se lee de izquierda a derecha
+      const lp = pts[0][0] <= pts[pts.length - 1][0] ? pts : pts.slice().reverse();
+      const id = "river-path-" + i;
+      el("path", { id, d: toPath(lp, false) }, defs);
+      const t = el("text", { class: "river-label", dy: -2.5 }, riverLabels);
+      const tp = el("textPath", { href: "#" + id, startOffset: "50%", "text-anchor": "middle" }, t);
+      tp.textContent = name;
+    }
   });
 
-  // Fronteras y el Muro
-  GEO.borders.forEach((b, i) => {
-    const pts = roughen(b, { closed: false, iters: 3, rough: 0.2, seed: 900 + i });
-    el("path", { d: smoothPath(pts), class: "border" }, layers.borders);
-  });
-  const wallD = smoothPath(GEO.wall);
+  // Lagos (formas reales)
+  GEO_DATA.lakes.forEach((l) => el("path", { d: toPath(l.pts), class: "lake" }, layers.water));
+
+  // Fronteras entre regiones y el Muro
+  GEO_DATA.borders.forEach((b) => el("path", { d: toPath(b, false), class: "border" }, layers.borders));
+  const wallD = toPath(GEO_DATA.wall, false);
   el("path", { d: wallD, class: "wall-shadow" }, layers.borders);
   el("path", { d: wallD, class: "wall" }, layers.borders);
 
@@ -187,7 +291,13 @@
     if (s.rotate) attrs.transform = `rotate(${s.rotate} ${s.x} ${s.y})`;
     el("text", attrs, layers.labels).textContent = s.name;
   });
-  const wallLabel = el("text", { x: 400, y: 322, class: "wall-label", "font-size": 9 }, layers.labels);
+  GEO.landLabels.forEach((s) => {
+    const attrs = { x: s.x, y: s.y, class: "land-label", "font-size": s.size };
+    if (s.rotate) attrs.transform = `rotate(${s.rotate} ${s.x} ${s.y})`;
+    el("text", attrs, layers.labels).textContent = s.name;
+  });
+  const wallMid = GEO_DATA.wall[Math.floor(GEO_DATA.wall.length / 2)];
+  const wallLabel = el("text", { x: wallMid[0], y: wallMid[1] - 8, class: "wall-label", "font-size": 9 }, layers.labels);
   wallLabel.textContent = "THE WALL";
 
   // ---------- Marcadores de castillos ----------
@@ -200,7 +310,6 @@
   };
 
   // Un clipPath por tamaño de escudo para recortar cada blasón del sprite
-  const defs = svg.querySelector("defs");
   const clips = {};
   function shieldClip(w, h) {
     const id = "clip-" + Math.round(w * 10);
@@ -333,7 +442,7 @@
       m.label.classList.toggle("hidden", !visible);
     });
     svg.classList.toggle("zoomed-in", zoom > 3);
-    wallLabel.setAttribute("font-size", Math.max(9, 12 * unit).toFixed(1));
+    wallLabel.setAttribute("font-size", Math.min(9, 12 * unit).toFixed(2));
   }
 
   function clientToMap(cx, cy) {

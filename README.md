@@ -18,7 +18,8 @@ Mapa interactivo de Poniente (Westeros) con las casas nobles y sus castillos, he
 - `js/data.js` – regiones, casas y castillos (para añadir lugares, edita este archivo).
 - `js/lore.js` – personajes y acontecimientos de cada lugar.
 - `img/sigils.webp` – escudos de las casas (sprite de 8 columnas).
-- `js/geo.js` – geografía del mapa (costa, islas, ríos, montañas, fronteras).
+- `js/geo-data.js` – costa, islas, ríos, lagos, fronteras y el Muro (archivo generado).
+- `js/geo.js` – montañas, bosques y rótulos.
 - `js/map.js` – dibujo del mapa e interacción.
 
 ## Ejecutar en local
@@ -32,6 +33,8 @@ python -m http.server 8080
 ## Publicación
 
 Se publica con GitHub Pages desde la rama `main` (carpeta raíz).
+
+La geografía (`js/geo-data.js`) se generó a partir de [Location map Westeros.svg](https://awoiaf.westeros.org/index.php/File:Location_map_Westeros.svg), de Abjiklam en A Wiki of Ice and Fire, bajo licencia [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/): se convirtieron sus trazos al sistema de coordenadas del mapa y se le dio otro estilo.
 
 Los escudos provienen de [A Wiki of Ice and Fire](https://awoiaf.westeros.org/index.php/Category:SVG_coats_of_arms) y se distribuyen bajo la licencia [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/); aquí se rasterizaron y combinaron en `img/sigils.webp`.
 

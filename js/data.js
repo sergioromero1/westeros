@@ -1,5 +1,5 @@
 // Datos de Poniente: regiones, casas y castillos.
-// Coordenadas en el sistema del SVG (viewBox 0 0 1000 1800). Ubicaciones aproximadas
+// Coordenadas en el sistema del mapa (ver js/geo-data.js, 1000 x 1656). Ubicaciones aproximadas
 // basadas en los mapas de "Canción de Hielo y Fuego" / "Juego de Tronos".
 
 const REGIONS = {
@@ -67,79 +67,79 @@ const HOUSES = {
 // type: capital (sede principal de un gran casa), castle, city, ruin, watch
 const CASTLES = [
   // Más allá del Muro y el Muro
-  { name: "Castillo Negro", x: 470, y: 330, house: "watch", region: "beyond", type: "watch", desc: "Sede del Lord Comandante de la Guardia de la Noche, en el centro del Muro." },
-  { name: "Guardiaoriente del Mar", x: 640, y: 322, house: "watch", region: "beyond", type: "watch", desc: "Castillo de la Guardia en el extremo oriental del Muro, junto al mar." },
-  { name: "Torre Sombría", x: 300, y: 336, house: "watch", region: "beyond", type: "watch", desc: "Fortaleza occidental de la Guardia, vigila los pasos de los Colmillos Helados." },
-  { name: "Torreón de Craster", x: 490, y: 235, house: "freefolk", region: "beyond", type: "ruin", desc: "Salón fortificado del salvaje Craster, en el Bosque Encantado." },
-  { name: "El Puño de los Primeros Hombres", x: 420, y: 165, house: "freefolk", region: "beyond", type: "ruin", desc: "Antiguo fuerte circular sobre una colina; escenario de un ataque de los Otros." },
-  { name: "Casa Austera", x: 672, y: 178, house: "freefolk", region: "beyond", type: "ruin", desc: "Poblado en ruinas en la costa; lugar de la masacre de los salvajes." },
+  { name: "Castillo Negro", x: 565, y: 378, house: "watch", region: "beyond", type: "watch", desc: "Sede del Lord Comandante de la Guardia de la Noche, en el centro del Muro." },
+  { name: "Guardiaoriente del Mar", x: 631, y: 376, house: "watch", region: "beyond", type: "watch", desc: "Castillo de la Guardia en el extremo oriental del Muro, junto al mar." },
+  { name: "Torre Sombría", x: 508, y: 394, house: "watch", region: "beyond", type: "watch", desc: "Fortaleza occidental de la Guardia, vigila los pasos de los Colmillos Helados." },
+  { name: "Torreón de Craster", x: 548, y: 300, house: "freefolk", region: "beyond", type: "ruin", desc: "Salón fortificado del salvaje Craster, en el Bosque Encantado." },
+  { name: "El Puño de los Primeros Hombres", x: 452, y: 235, house: "freefolk", region: "beyond", type: "ruin", desc: "Antiguo fuerte circular sobre una colina; escenario de un ataque de los Otros." },
+  { name: "Casa Austera", x: 592, y: 163, house: "freefolk", region: "beyond", type: "ruin", desc: "Poblado en ruinas en la costa; lugar de la masacre de los salvajes." },
 
   // El Norte
-  { name: "Invernalia", x: 440, y: 600, house: "stark", region: "north", type: "capital", desc: "Sede ancestral de la Casa Stark y corazón del Norte. Construida sobre aguas termales." },
-  { name: "Último Hogar", x: 560, y: 405, house: "umber", region: "north", type: "castle", desc: "Sede de la Casa Umber, el castillo más septentrional de los Siete Reinos." },
-  { name: "Bastión Kar", x: 690, y: 455, house: "karstark", region: "north", type: "castle", desc: "Sede de la Casa Karstark, en el este del Norte." },
-  { name: "Fuerte Terror", x: 610, y: 560, house: "bolton", region: "north", type: "castle", desc: "Sede de la Casa Bolton, junto al río Weeping Water." },
-  { name: "Bosquespeso", x: 245, y: 470, house: "glover", region: "north", type: "castle", desc: "Motte de madera en el Bosque de los Lobos, sede de la Casa Glover." },
-  { name: "Isla del Oso", x: 185, y: 405, house: "mormont", region: "north", type: "castle", desc: "Isla de la Bahía de Hielo, gobernada por la Casa Mormont." },
-  { name: "Bosquecuerno", x: 580, y: 650, house: "hornwood", region: "north", type: "castle", desc: "Sede de la Casa Hornwood." },
-  { name: "Castillo Cerwyn", x: 470, y: 655, house: "cerwyn", region: "north", type: "castle", desc: "Sede de la Casa Cerwyn, a medio día a caballo de Invernalia." },
-  { name: "Ciudadela de Torrhen", x: 360, y: 685, house: "tallhart", region: "north", type: "castle", desc: "Sede de la Casa Tallhart, en el río Fosso." },
-  { name: "Puerto Blanco", x: 560, y: 795, house: "manderly", region: "north", type: "city", desc: "La única ciudad del Norte, sede de la Casa Manderly, en la desembocadura del Cuchillo Blanco." },
-  { name: "Túmulo", x: 330, y: 770, house: "dustin", region: "north", type: "castle", desc: "Pueblo y castillo de la Casa Dustin, junto al Gran Túmulo." },
-  { name: "Foso Cailin", x: 440, y: 885, house: "stark", region: "north", type: "ruin", desc: "Antigua fortaleza en ruinas que guarda la Atalaya del Cuello." },
-  { name: "Atalaya de Aguasgrises", x: 410, y: 945, house: "reed", region: "north", type: "castle", desc: "Castillo flotante de la Casa Reed, en los pantanos del Cuello." },
+  { name: "Invernalia", x: 450, y: 620, house: "stark", region: "north", type: "capital", desc: "Sede ancestral de la Casa Stark y corazón del Norte. Construida sobre aguas termales." },
+  { name: "Último Hogar", x: 600, y: 455, house: "umber", region: "north", type: "castle", desc: "Sede de la Casa Umber, el castillo más septentrional de los Siete Reinos." },
+  { name: "Bastión Kar", x: 700, y: 470, house: "karstark", region: "north", type: "castle", desc: "Sede de la Casa Karstark, en el este del Norte." },
+  { name: "Fuerte Terror", x: 655, y: 610, house: "bolton", region: "north", type: "castle", desc: "Sede de la Casa Bolton, junto al río Weeping Water." },
+  { name: "Bosquespeso", x: 380, y: 545, house: "glover", region: "north", type: "castle", desc: "Motte de madera en el Bosque de los Lobos, sede de la Casa Glover." },
+  { name: "Isla del Oso", x: 350, y: 463, house: "mormont", region: "north", type: "castle", desc: "Isla de la Bahía de Hielo, gobernada por la Casa Mormont." },
+  { name: "Bosquecuerno", x: 618, y: 700, house: "hornwood", region: "north", type: "castle", desc: "Sede de la Casa Hornwood." },
+  { name: "Castillo Cerwyn", x: 470, y: 665, house: "cerwyn", region: "north", type: "castle", desc: "Sede de la Casa Cerwyn, a medio día a caballo de Invernalia." },
+  { name: "Ciudadela de Torrhen", x: 395, y: 662, house: "tallhart", region: "north", type: "castle", desc: "Sede de la Casa Tallhart, en el río Fosso." },
+  { name: "Puerto Blanco", x: 550, y: 746, house: "manderly", region: "north", type: "city", desc: "La única ciudad del Norte, sede de la Casa Manderly, en la desembocadura del Cuchillo Blanco." },
+  { name: "Túmulo", x: 410, y: 742, house: "dustin", region: "north", type: "castle", desc: "Pueblo y castillo de la Casa Dustin, junto al Gran Túmulo." },
+  { name: "Foso Cailin", x: 462, y: 790, house: "stark", region: "north", type: "ruin", desc: "Antigua fortaleza en ruinas que guarda la Atalaya del Cuello." },
+  { name: "Atalaya de Aguasgrises", x: 455, y: 835, house: "reed", region: "north", type: "castle", desc: "Castillo flotante de la Casa Reed, en los pantanos del Cuello." },
 
   // Islas del Hierro
-  { name: "Pyke", x: 205, y: 1085, house: "greyjoy", region: "iron", type: "capital", desc: "Sede de la Casa Greyjoy, construida sobre acantilados y unida por puentes colgantes." },
+  { name: "Pyke", x: 263, y: 1018, house: "greyjoy", region: "iron", type: "capital", desc: "Sede de la Casa Greyjoy, construida sobre acantilados y unida por puentes colgantes." },
 
   // Tierras de los Ríos
-  { name: "Los Gemelos", x: 415, y: 1030, house: "frey", region: "river", type: "castle", desc: "Dos castillos unidos por un puente sobre el Forca Verde. Sede de la Casa Frey." },
-  { name: "Varamar", x: 320, y: 1060, house: "mallister", region: "river", type: "castle", desc: "Sede de la Casa Mallister, defensa contra los hijos del hierro." },
-  { name: "Aguasdulces", x: 375, y: 1150, house: "tully", region: "river", type: "capital", desc: "Sede de la Casa Tully, en la confluencia del Forca Roja y el Piedrasviejas." },
-  { name: "Harrenhal", x: 490, y: 1175, house: "whent", region: "river", type: "ruin", desc: "El castillo más grande de Poniente, fundido por el fuego de dragón de Aegon." },
-  { name: "Árbol de los Cuervos", x: 430, y: 1100, house: "blackwood", region: "river", type: "castle", desc: "Sede de la Casa Blackwood, con su gran arciano muerto." },
-  { name: "Seto de Piedra", x: 430, y: 1140, house: "bracken", region: "river", type: "castle", desc: "Sede de la Casa Bracken, eternos rivales de los Blackwood." },
+  { name: "Los Gemelos", x: 440, y: 940, house: "frey", region: "river", type: "castle", desc: "Dos castillos unidos por un puente sobre el Forca Verde. Sede de la Casa Frey." },
+  { name: "Varamar", x: 436, y: 985, house: "mallister", region: "river", type: "castle", desc: "Sede de la Casa Mallister, defensa contra los hijos del hierro." },
+  { name: "Aguasdulces", x: 445, y: 1066, house: "tully", region: "river", type: "capital", desc: "Sede de la Casa Tully, en la confluencia del Forca Roja y el Piedrasviejas." },
+  { name: "Harrenhal", x: 540, y: 1102, house: "whent", region: "river", type: "ruin", desc: "El castillo más grande de Poniente, fundido por el fuego de dragón de Aegon." },
+  { name: "Árbol de los Cuervos", x: 468, y: 1020, house: "blackwood", region: "river", type: "castle", desc: "Sede de la Casa Blackwood, con su gran arciano muerto." },
+  { name: "Seto de Piedra", x: 485, y: 1092, house: "bracken", region: "river", type: "castle", desc: "Sede de la Casa Bracken, eternos rivales de los Blackwood." },
 
   // El Valle
-  { name: "Nido de Águilas", x: 640, y: 1045, house: "arryn", region: "vale", type: "capital", desc: "Sede de la Casa Arryn, inexpugnable sobre la cima de la Lanza del Gigante." },
-  { name: "Puerto Gaviota", x: 705, y: 1110, house: "grafton", region: "vale", type: "city", desc: "Ciudad portuaria del Valle, gobernada por la Casa Grafton." },
-  { name: "Piedra de las Runas", x: 735, y: 1020, house: "royce", region: "vale", type: "castle", desc: "Sede de la Casa Royce, sus muros están grabados con runas de los Primeros Hombres." },
+  { name: "Nido de Águilas", x: 650, y: 985, house: "arryn", region: "vale", type: "capital", desc: "Sede de la Casa Arryn, inexpugnable sobre la cima de la Lanza del Gigante." },
+  { name: "Puerto Gaviota", x: 722, y: 1035, house: "grafton", region: "vale", type: "city", desc: "Ciudad portuaria del Valle, gobernada por la Casa Grafton." },
+  { name: "Piedra de las Runas", x: 785, y: 962, house: "royce", region: "vale", type: "castle", desc: "Sede de la Casa Royce, sus muros están grabados con runas de los Primeros Hombres." },
 
   // Tierras del Oeste
-  { name: "Roca Casterly", x: 205, y: 1265, house: "lannister", region: "west", type: "capital", desc: "Sede de la Casa Lannister, excavada en una enorme roca sobre el mar." },
-  { name: "Lannisport", x: 230, y: 1285, house: "lannister", region: "west", type: "city", desc: "La mayor ciudad del Oeste, a la sombra de Roca Casterly." },
-  { name: "El Risco", x: 185, y: 1185, house: "westerling", region: "west", type: "castle", desc: "Sede de la Casa Westerling, sobre acantilados marinos." },
-  { name: "Colmillo Dorado", x: 275, y: 1180, house: "lefford", region: "west", type: "castle", desc: "Sede de la Casa Lefford, guarda el paso entre el Oeste y las Tierras de los Ríos." },
-  { name: "Marca Ceniza", x: 245, y: 1215, house: "marbrand", region: "west", type: "castle", desc: "Sede de la Casa Marbrand." },
+  { name: "Roca Casterly", x: 249, y: 1199, house: "lannister", region: "west", type: "capital", desc: "Sede de la Casa Lannister, excavada en una enorme roca sobre el mar." },
+  { name: "Lannisport", x: 236, y: 1218, house: "lannister", region: "west", type: "city", desc: "La mayor ciudad del Oeste, a la sombra de Roca Casterly." },
+  { name: "El Risco", x: 215, y: 1170, house: "westerling", region: "west", type: "castle", desc: "Sede de la Casa Westerling, sobre acantilados marinos." },
+  { name: "Colmillo Dorado", x: 380, y: 1140, house: "lefford", region: "west", type: "castle", desc: "Sede de la Casa Lefford, guarda el paso entre el Oeste y las Tierras de los Ríos." },
+  { name: "Marca Ceniza", x: 330, y: 1165, house: "marbrand", region: "west", type: "castle", desc: "Sede de la Casa Marbrand." },
 
   // Tierras de la Corona
-  { name: "Desembarco del Rey", x: 605, y: 1295, house: "baratheon", region: "crown", type: "capital", desc: "Capital de los Siete Reinos. Hogar de la Fortaleza Roja y el Trono de Hierro." },
-  { name: "Rocadragón", x: 725, y: 1248, house: "targaryen", region: "crown", type: "capital", desc: "Isla volcánica, antigua fortaleza de los Targaryen y luego de Stannis Baratheon." },
-  { name: "Marcaderiva", x: 695, y: 1272, house: "velaryon", region: "crown", type: "castle", desc: "Isla sede de la Casa Velaryon, señores de las mareas." },
-  { name: "El Valle Oscuro", x: 640, y: 1235, house: "rykker", region: "crown", type: "city", desc: "Ciudad portuaria en la Bahía del Aguasnegras." },
+  { name: "Desembarco del Rey", x: 600, y: 1225, house: "baratheon", region: "crown", type: "capital", desc: "Capital de los Siete Reinos. Hogar de la Fortaleza Roja y el Trono de Hierro." },
+  { name: "Rocadragón", x: 739, y: 1154, house: "targaryen", region: "crown", type: "capital", desc: "Isla volcánica, antigua fortaleza de los Targaryen y luego de Stannis Baratheon." },
+  { name: "Marcaderiva", x: 717, y: 1167, house: "velaryon", region: "crown", type: "castle", desc: "Isla sede de la Casa Velaryon, señores de las mareas." },
+  { name: "El Valle Oscuro", x: 650, y: 1195, house: "rykker", region: "crown", type: "city", desc: "Ciudad portuaria en la Bahía del Aguasnegras." },
 
   // El Dominio
-  { name: "Altojardín", x: 315, y: 1495, house: "tyrell", region: "reach", type: "capital", desc: "Sede de la Casa Tyrell, castillo rodeado de jardines junto al río Mander." },
-  { name: "Antigua", x: 200, y: 1620, house: "hightower", region: "reach", type: "city", desc: "La ciudad más antigua de Poniente, hogar de la Ciudadela de los maestres y del Faro." },
-  { name: "Colina Cuerno", x: 365, y: 1595, house: "tarly", region: "reach", type: "castle", desc: "Sede de la Casa Tarly, donde guardan la espada Veneno de Corazón." },
-  { name: "El Rejo", x: 170, y: 1725, house: "redwyne", region: "reach", type: "castle", desc: "Isla famosa por sus vinos, sede de la Casa Redwyne." },
-  { name: "Aguasclaras", x: 250, y: 1575, house: "florent", region: "reach", type: "castle", desc: "Sede de la Casa Florent." },
-  { name: "Puenteamargo", x: 440, y: 1385, house: "caswell", region: "reach", type: "castle", desc: "Sede de la Casa Caswell, sobre el río Mander." },
-  { name: "Vado Ceniza", x: 450, y: 1490, house: "ashford", region: "reach", type: "castle", desc: "Sede de la Casa Ashford, famosa por su gran torneo." },
+  { name: "Altojardín", x: 360, y: 1365, house: "tyrell", region: "reach", type: "capital", desc: "Sede de la Casa Tyrell, castillo rodeado de jardines junto al río Mander." },
+  { name: "Antigua", x: 262, y: 1497, house: "hightower", region: "reach", type: "city", desc: "La ciudad más antigua de Poniente, hogar de la Ciudadela de los maestres y del Faro." },
+  { name: "Colina Cuerno", x: 335, y: 1478, house: "tarly", region: "reach", type: "castle", desc: "Sede de la Casa Tarly, donde guardan la espada Veneno de Corazón." },
+  { name: "El Rejo", x: 205, y: 1595, house: "redwyne", region: "reach", type: "castle", desc: "Isla famosa por sus vinos, sede de la Casa Redwyne." },
+  { name: "Aguasclaras", x: 290, y: 1455, house: "florent", region: "reach", type: "castle", desc: "Sede de la Casa Florent." },
+  { name: "Puenteamargo", x: 470, y: 1302, house: "caswell", region: "reach", type: "castle", desc: "Sede de la Casa Caswell, sobre el río Mander." },
+  { name: "Vado Ceniza", x: 460, y: 1386, house: "ashford", region: "reach", type: "castle", desc: "Sede de la Casa Ashford, famosa por su gran torneo." },
 
   // Tierras de la Tormenta
-  { name: "Bastión de Tormentas", x: 705, y: 1445, house: "baratheon", region: "storm", type: "capital", desc: "Sede de la Casa Baratheon, construida para resistir las tormentas de la Bahía de los Naufragios." },
-  { name: "Atardecer", x: 805, y: 1400, house: "tarth", region: "storm", type: "castle", desc: "Castillo de la isla de Tarth, la Isla Zafiro. Hogar de Brienne." },
-  { name: "Nido del Grifo", x: 735, y: 1405, house: "connington", region: "storm", type: "castle", desc: "Sede de la Casa Connington, sobre un acantilado." },
-  { name: "Refugio Estival", x: 585, y: 1470, house: "targaryen", region: "storm", type: "ruin", desc: "Palacio de verano Targaryen, destruido por el fuego en la tragedia de Refugio Estival." },
+  { name: "Bastión de Tormentas", x: 710, y: 1320, house: "baratheon", region: "storm", type: "capital", desc: "Sede de la Casa Baratheon, construida para resistir las tormentas de la Bahía de los Naufragios." },
+  { name: "Atardecer", x: 772, y: 1335, house: "tarth", region: "storm", type: "castle", desc: "Castillo de la isla de Tarth, la Isla Zafiro. Hogar de Brienne." },
+  { name: "Nido del Grifo", x: 711, y: 1274, house: "connington", region: "storm", type: "castle", desc: "Sede de la Casa Connington, sobre un acantilado." },
+  { name: "Refugio Estival", x: 605, y: 1410, house: "targaryen", region: "storm", type: "ruin", desc: "Palacio de verano Targaryen, destruido por el fuego en la tragedia de Refugio Estival." },
 
   // Dorne
-  { name: "Lanza del Sol", x: 885, y: 1690, house: "martell", region: "dorne", type: "capital", desc: "Sede de la Casa Martell y capital de Dorne." },
-  { name: "Jardines del Agua", x: 820, y: 1700, house: "martell", region: "dorne", type: "castle", desc: "Palacio de recreo de los Martell, con fuentes y estanques." },
-  { name: "Campo Estrella", x: 430, y: 1705, house: "dayne", region: "dorne", type: "castle", desc: "Sede de la Casa Dayne, guardianes de la espada Albor." },
-  { name: "Palosanto", x: 615, y: 1640, house: "yronwood", region: "dorne", type: "castle", desc: "Sede de la Casa Yronwood, guardianes del Camino Pedregoso." },
-  { name: "Altozano", x: 500, y: 1630, house: "fowler", region: "dorne", type: "castle", desc: "Sede de la Casa Fowler, vigila el Paso del Príncipe." },
-  { name: "Torre de la Alegría", x: 540, y: 1595, house: "targaryen", region: "dorne", type: "ruin", desc: "Torre en las Montañas Rojas donde murió Lyanna Stark." },
+  { name: "Lanza del Sol", x: 752, y: 1580, house: "martell", region: "dorne", type: "capital", desc: "Sede de la Casa Martell y capital de Dorne." },
+  { name: "Jardines del Agua", x: 695, y: 1592, house: "martell", region: "dorne", type: "castle", desc: "Palacio de recreo de los Martell, con fuentes y estanques." },
+  { name: "Campo Estrella", x: 352, y: 1548, house: "dayne", region: "dorne", type: "castle", desc: "Sede de la Casa Dayne, guardianes de la espada Albor." },
+  { name: "Palosanto", x: 600, y: 1530, house: "yronwood", region: "dorne", type: "castle", desc: "Sede de la Casa Yronwood, guardianes del Camino Pedregoso." },
+  { name: "Altozano", x: 430, y: 1478, house: "fowler", region: "dorne", type: "castle", desc: "Sede de la Casa Fowler, vigila el Paso del Príncipe." },
+  { name: "Torre de la Alegría", x: 495, y: 1478, house: "targaryen", region: "dorne", type: "ruin", desc: "Torre en las Montañas Rojas donde murió Lyanna Stark." },
 ];
 
 // Nombre original en inglés de cada lugar (también se usa en la búsqueda)
