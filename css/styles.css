@@ -194,7 +194,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   background: var(--sea);
 }
 .stage.dragging { cursor: grabbing; }
-#map { width: 100%; height: 100%; display: block; user-select: none; -webkit-user-select: none; }
+/* El SVG mide el doble del escenario y se centra: así hay mapa dibujado fuera de la vista al arrastrar */
+#map { position: absolute; left: -50%; top: -50%; width: 200%; height: 200%; display: block; user-select: none; -webkit-user-select: none; will-change: transform; }
 
 .sea-fill { fill: var(--sea); }
 .wave { fill: none; stroke: var(--sea-wave); stroke-width: 1; opacity: 0.6; }
@@ -202,7 +203,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .coast-glow { fill: none; stroke: #c9dde0; stroke-width: 18; stroke-linejoin: round; opacity: 0.45; }
 .coast-glow2 { fill: none; stroke: #d7e7e8; stroke-width: 7; stroke-linejoin: round; opacity: 0.7; }
 .land { fill: var(--land); stroke: var(--coast); stroke-width: 1.6; stroke-linejoin: round; }
-.land-texture { fill: #000; filter: url(#paper); opacity: 0.35; pointer-events: none; }
+.land-texture { fill: url(#paperPattern); opacity: 0.35; pointer-events: none; }
 
 .tree line { stroke: #5a4326; stroke-width: 1.2; }
 .tree circle { fill: #8fa36b; stroke: #4f5f35; stroke-width: 1; }

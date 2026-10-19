@@ -96,6 +96,31 @@
   el("path", { d: landD, class: "coast-glow2" }, layers.land);
   el("path", { d: landD, class: "land" }, layers.land);
   el("path", { d: landD, class: "land-texture" }, layers.land);
+  (function paperTexture() {
+    const size = 256;
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = size;
+    const ctx = cv.getContext("2d");
+    const img = ctx.createImageData(size, size);
+    const rand = rng(42);
+    // Ruido suavizado en dos escalas para imitar papel viejo
+    const coarse = Array.from({ length: 17 * 17 }, () => rand());
+    const at = (x, y) => coarse[(y % 16) * 17 + (x % 16)];
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const gx = x / 16, gy = y / 16;
+        const x0 = Math.floor(gx), y0 = Math.floor(gy);
+        const fx = gx - x0, fy = gy - y0;
+        const v = at(x0, y0) * (1 - fx) * (1 - fy) + at(x0 + 1, y0) * fx * (1 - fy) + at(x0, y0 + 1) * (1 - fx) * fy + at(x0 + 1, y0 + 1) * fx * fy;
+        const a = Math.max(0, v * 0.7 + rand() * 0.3 - 0.35) * 255;
+        const i = (y * size + x) * 4;
+        img.data[i] = 90; img.data[i + 1] = 64; img.data[i + 2] = 30; img.data[i + 3] = a;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    const pat = el("pattern", { id: "paperPattern", width: 128, height: 128, patternUnits: "userSpaceOnUse" }, svg.querySelector("defs"));
+    el("image", { href: cv.toDataURL(), width: 128, height: 128 }, pat);
+  })();
 
   const onLand = (p) => landPolys.some((poly) => inside(p, poly));
 
@@ -260,9 +285,43 @@
 
   let showAllLabels = false;
 
+  // Durante un gesto el mapa no se redibuja: se mueve la capa ya pintada con un transform (GPU)
+  // y al terminar se fija el viewBox real. El SVG mide el doble del escenario (ver CSS),
+  // así al arrastrar se ve mapa ya dibujado en los bordes.
+  const committed = { ...view };
+  let frame = 0;
+  let pending = false; // hay cambios de vista sin fijar en el viewBox
+
+  function preview() {
+    clampView();
+    pending = true;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      const s = stageSize();
+      const k = committed.w / view.w;
+      const tx = ((committed.x - view.x) / view.w) * s.w;
+      const ty = ((committed.y - view.y) / view.h) * s.h;
+      svg.style.transformOrigin = `${s.w / 2}px ${s.h / 2}px`;
+      svg.style.transform = `translate(${tx}px, ${ty}px) scale(${k})`;
+    });
+  }
+
+  let commitTimer = 0;
+  function commitSoon(delay = 140) {
+    clearTimeout(commitTimer);
+    commitTimer = setTimeout(apply, delay);
+  }
+
   function apply() {
     clampView();
-    svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
+    clearTimeout(commitTimer);
+    cancelAnimationFrame(frame);
+    frame = 0;
+    pending = false;
+    Object.assign(committed, view);
+    svg.style.transform = "";
+    svg.setAttribute("viewBox", `${view.x - view.w / 2} ${view.y - view.h / 2} ${view.w * 2} ${view.h * 2}`);
     const unit = view.w / stageSize().w; // unidades del mapa por píxel de pantalla
     const zoom = fitW / view.w;
     svg.style.setProperty("--unit", unit);
@@ -282,7 +341,7 @@
     return [view.x + ((cx - r.left) / r.width) * view.w, view.y + ((cy - r.top) / r.height) * view.h];
   }
 
-  function zoomAt(factor, cx, cy) {
+  function zoomAt(factor, cx, cy, live = false) {
     const [mx, my] = clientToMap(cx, cy);
     const s = stageSize();
     const nw = Math.min(fitW * 1.15, Math.max(fitW / 14, view.w / factor));
@@ -291,7 +350,8 @@
     view.y = my - (my - view.y) * k;
     view.w = nw;
     view.h = nw * (s.h / s.w);
-    apply();
+    if (live) preview();
+    else apply();
   }
 
   let anim = null;
@@ -309,8 +369,12 @@
       const t = Math.min(1, (now - t0) / duration);
       const e = ease(t);
       for (const k of ["x", "y", "w", "h"]) view[k] = start[k] + (target[k] - start[k]) * e;
-      apply();
-      if (t < 1) anim = requestAnimationFrame(step);
+      if (t < 1) {
+        preview();
+        anim = requestAnimationFrame(step);
+      } else {
+        apply();
+      }
     };
     anim = requestAnimationFrame(step);
   }
@@ -320,7 +384,8 @@
     (e) => {
       e.preventDefault();
       cancelAnimationFrame(anim);
-      zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY);
+      zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY, true);
+      commitSoon();
     },
     { passive: false }
   );
@@ -330,8 +395,16 @@
   let pinchDist = 0;
 
   stage.addEventListener("pointerdown", (e) => {
-    cancelAnimationFrame(anim);
-    stage.setPointerCapture(e.pointerId);
+    if (anim) {
+      cancelAnimationFrame(anim);
+      anim = null;
+      apply();
+    }
+    try {
+      stage.setPointerCapture(e.pointerId);
+    } catch (_) {
+      /* puntero sin captura posible (p. ej. eventos sintéticos) */
+    }
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     dragMoved = 0;
     if (pointers.size === 2) {
@@ -356,12 +429,12 @@
       dragMoved += Math.abs(dx) + Math.abs(dy);
       view.x -= (dx / r.width) * view.w;
       view.y -= (dy / r.height) * view.h;
-      apply();
+      preview();
     } else if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
       dragMoved += 10;
-      if (pinchDist) zoomAt(d / pinchDist, (a.x + b.x) / 2, (a.y + b.y) / 2);
+      if (pinchDist) zoomAt(d / pinchDist, (a.x + b.x) / 2, (a.y + b.y) / 2, true);
       pinchDist = d;
     }
     hideTooltip();
@@ -370,7 +443,10 @@
   function endPointer(e) {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchDist = 0;
-    if (pointers.size === 0) stage.classList.remove("dragging");
+    if (pointers.size === 0) {
+      stage.classList.remove("dragging");
+      if (pending) apply();
+    }
   }
   stage.addEventListener("pointerup", (e) => {
     const wasClick = pointers.size === 1 && dragMoved < 6;
